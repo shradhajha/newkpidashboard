@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPI Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .dashboard-container {
+            max-width: 1024px;
+        }
+        .active-tab {
+            background-color: #f9fafb;
+            color: #111827;
+            border-bottom: 2px solid #00b0ff;
+        }
+        .horizontal-scroll-container {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 sm:p-8 flex justify-center min-h-screen">
+    <div class="dashboard-container w-full bg-white rounded-xl shadow-lg p-6 sm:p-10 border border-gray-200">
+        <div class="flex flex-col items-center mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">My KPI Dashboard</h1>
+            <p class="text-gray-500 mb-4 text-center">A comprehensive view of your performance and cultural contributions.</p>
+            <div id="loading" class="text-[#00b0ff] text-lg hidden">Loading...</div>
+            <p id="auth-status" class="text-sm text-gray-400 mt-2">Running locally. Firebase config not found.</p>
+        </div>
+
+        <!-- Dashboard Navigation -->
+        <div id="nav-tabs" class="flex flex-wrap justify-center border-b border-gray-200 mb-6">
+            <button data-tab="profile" class="tab-btn py-3 px-4 sm:px-6 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-50 rounded-t-lg active-tab">360-Degree Profile</button>
+            <button data-tab="q-impact" class="tab-btn py-3 px-4 sm:px-6 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-50 rounded-t-lg">Q-Impact Board</button>
+            <button data-tab="culture-scorecard" class="tab-btn py-3 px-4 sm:px-6 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-50 rounded-t-lg">Culture Scorecard</button>
+            <button data-tab="performance-scorecard" class="tab-btn py-3 px-4 sm:px-6 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-50 rounded-t-lg">Performance Scorecard</button>
+            <button data-tab="contribution-values" class="tab-btn py-3 px-4 sm:px-6 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-50 rounded-t-lg">Contribution through Values</button>
+            <button data-tab="info-gallery" class="tab-btn py-3 px-4 sm:px-6 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-50 rounded-t-lg">Information Gallery</button>
+            <button data-tab="evidence-gallery" class="tab-btn py-3 px-4 sm:px-6 text-sm font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-50 rounded-t-lg">Evidence Gallery</button>
+        </div>
+
+        <!-- Dashboard Sections -->
+        <div id="dashboard-content" class="min-h-[500px]">
+            <!-- 360-Degree Performance Profile -->
+            <div id="profile" class="tab-content p-4 border rounded-lg bg-gray-50 shadow-inner">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">360-Degree Profile</h2>
+                <div id="profile-details" class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Basic Details</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-600 mb-4">
+                        <p>
+                            <strong class="font-medium text-gray-800">User ID:</strong>
+                            <select id="user-id-select" class="ml-2 rounded-md border-gray-300 shadow-sm focus:border-[#00b0ff] focus:ring-[#00b0ff]">
+                                <option value="user1">User 1 (Jane Doe)</option>
+                                <option value="user2">User 2 (John Smith)</option>
+                                <option value="user3">User 3 (Alex Johnson)</option>
+                            </select>
+                        </p>
+                        <p><strong class="font-medium text-gray-800">Name:</strong> <span id="profile-name">Jane Doe</span></p>
+                        <p><strong class="font-medium text-gray-800">Date of Joining:</strong> <span id="profile-doj">28/01/2022</span></p>
+                        <p><strong class="font-medium text-gray-800">Current Tenure:</strong> <span id="profile-tenure">3 yrs, 7 mos</span></p>
+                        <p><strong class="font-medium text-gray-800">Designation:</strong> <span id="profile-designation">Senior Credit Analyst</span></p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-4 rounded-lg bg-[#ff0065] text-white flex flex-col items-center justify-center text-center">
+                            <p class="text-xs font-semibold">Your Brand Identity</p>
+                            <span class="text-2xl font-bold mt-1" id="brand-identity-text">Emerging Leader</span>
+                        </div>
+                        <div class="p-4 rounded-lg bg-[#00b0ff] text-white flex flex-col items-center justify-center text-center">
+                            <p class="text-xs font-semibold">Integrated Contribution Score</p>
+                            <span class="text-2xl font-bold mt-1" id="integrated-score">5.35</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Living the Values - Recognition Dashboard</h3>
+                <div class="horizontal-scroll-container bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                    <table class="min-w-full text-left table-auto border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px] border-b-2 border-gray-200">Financial Year</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px] border-b-2 border-gray-200">Performance Rating</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px] border-b-2 border-gray-200">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="living-values-data">
+                             <!-- Dummy Data for Living the Values -->
+                             <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">FY2021-22</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">Not Available</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">--</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">FY2022-23</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">Not Available</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">--</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">FY2023-24</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">Not Available</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">--</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">FY2024-25</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">Below Expectations</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">2.35</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">FY2025-26</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">Below Expectations</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">0.29</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Your Performance Journey</h3>
+                <div class="horizontal-scroll-container bg-white rounded-lg shadow-sm border border-gray-200">
+                    <table class="min-w-full text-left table-auto border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px] border-b-2 border-gray-200">Financial Year</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px] border-b-2 border-gray-200">Performance Rating</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px] border-b-2 border-gray-200">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="performance-journey-data">
+                             <!-- Dummy Data for Performance Journey -->
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">FY2021-22</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">Meets Expectations</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">2.00</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">FY2022-23</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">High Performing</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">3.00</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">FY2023-24</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">High Performing</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">3.00</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">FY2024-25</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">High Performing</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">3.00</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">FY2025-26</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">High Performing</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">2.55</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Q-Impact Board -->
+            <div id="q-impact" class="tab-content hidden p-4 border rounded-lg bg-gray-50 shadow-inner">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Q-Impact Board</h2>
+                
+                <div class="horizontal-scroll-container bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2 p-3 bg-green-100">Living the Values - Recognition Dashboard</h3>
+                    <table class="min-w-full text-left table-auto border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px] border-b-2 border-gray-200">Quarter</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px] border-b-2 border-gray-200">Average Score (Auto populated from Scorecard Sheet)</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px] border-b-2 border-gray-200">Values-Based KPI Rating</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px] border-b-2 border-gray-200">Active Status per Quarter</th>
+                            </tr>
+                        </thead>
+                        <tbody id="q-impact-living-values-data">
+                             <!-- Dummy Data for Living the Values -->
+                             <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">FY2024-25</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">2.35</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">Meets Expectations</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">Yes</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">FY2025-26</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">0.29</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">Below Expectations</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">No</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="horizontal-scroll-container bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2 p-3 bg-red-100">Your Performance Journey</h3>
+                    <table class="min-w-full text-left table-auto border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px] border-b-2 border-gray-200">Quarter</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px] border-b-2 border-gray-200">Average Score (Auto populated from Scorecard Sheet)</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px] border-b-2 border-gray-200">Performance-Based KPI Rating</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px] border-b-2 border-gray-200">Active Status per Quarter</th>
+                            </tr>
+                        </thead>
+                        <tbody id="q-impact-performance-journey-data">
+                             <!-- Dummy Data for Performance Journey -->
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">FY2024-25</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">3.00</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">High Performing</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">Yes</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">FY2025-26</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">1.55</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">Meets Expectations</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">Yes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Individual Development Plan (IDP)</h3>
+                    <div class="horizontal-scroll-container">
+                        <table class="min-w-full text-left table-auto">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="p-3 text-sm font-semibold text-gray-700 min-w-[80px]">Quarter</th>
+                                    <th class="p-3 text-sm font-semibold text-gray-700 min-w-[120px]">Category (To be selected by manager)</th>
+                                    <th class="p-3 text-sm font-semibold text-gray-700 min-w-[100px]">KPI Rating (Auto-Populated)</th>
+                                    <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px]">Feedback (To be reviewed by manager)</th>
+                                    <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px]">Development Goal (Auto populated from Goal Matrix based on feedback recorded by manager)</th>
+                                    <th class="p-3 text-sm font-semibold text-gray-700 min-w-[250px]">Action Steps (To be populated from Goal Matrix) - a set of defined tasks that an individual can take to achieve the development goal.</th>
+                                    <th class="p-3 text-sm font-semibold text-gray-700 min-w-[80px]">Timeline (To be set on the IDP)</th>
+                                    <th class="p-3 text-sm font-semibold text-gray-700 min-w-[100px]">Status (To be set by the analyst as and when target is achieved)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="q-impact-data">
+                                <!-- Dummy Data for IDP -->
+                                <tr>
+                                    <td class="p-3 text-sm text-gray-600">Q2 2025</td>
+                                    <td class="p-3 text-sm text-gray-600">Values-based</td>
+                                    <td class="p-3 text-sm text-gray-600">High Performing</td>
+                                    <td class="p-3 text-sm text-gray-600">Strong performance, good communication with brokers. Needs more proactivity in identifying process improvements.</td>
+                                    <td class="p-3 text-sm text-gray-600">Become a mentor to junior analysts.</td>
+                                    <td class="p-3 text-sm text-gray-600">Provide feedback on junior analyst work, offer assistance without being asked, participate in cross-team collaboration initiatives.</td>
+                                    <td class="p-3 text-sm text-gray-600">Q3 2025</td>
+                                    <td class="p-3 text-sm text-gray-600">In Progress</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-sm text-gray-600">Q1 2025</td>
+                                    <td class="p-3 text-sm text-gray-600">Performance-based</td>
+                                    <td class="p-3 text-sm text-gray-600">Meets Expectations</td>
+                                    <td class="p-3 text-sm text-gray-600">Needs more focus on Submission to AIP conversion. Volume is meeting expectations but conversion rates are lagging.</td>
+                                    <td class="p-3 text-sm text-gray-600">Improve submission quality and conversion rate.</td>
+                                    <td class="p-3 text-sm text-gray-600">Review lender policies more thoroughly, seek feedback on submitted files, attend policy training sessions.</td>
+                                    <td class="p-3 text-sm text-gray-600">Q2 2025</td>
+                                    <td class="p-3 text-sm text-gray-600">Complete</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Culture Scorecard -->
+            <div id="culture-scorecard" class="tab-content hidden p-4 border rounded-lg bg-gray-50 shadow-inner">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Culture Scorecard</h2>
+                <div class="horizontal-scroll-container">
+                    <table class="min-w-full text-left table-auto border-collapse border-b border-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px]">Metric</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[80px]">Weights</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 text-center min-w-[100px]">Q1 (Jul-Sep)</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 text-center min-w-[100px]">Q2 (Oct-Dec)</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 text-center min-w-[100px]">Q3 (Jan-Mar)</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 text-center min-w-[100px]">Q4 (Apr-Jun)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="culture-kpi-data">
+                            <!-- KPI 1 -->
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 font-semibold">KPI 1: Broker Feedback</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">20%</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi1-q1">2.70</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi1-q2">2.50</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi1-q3">2.90</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi1-q4">2.50</span></td>
+                            </tr>
+                            <tr class="bg-white">
+                                <td colspan="6" class="p-3 text-xs text-gray-500 border border-gray-200">
+                                    <ul class="list-disc list-inside ml-4 space-y-1">
+                                        <li>Accuracy of Assessment</li>
+                                        <li>Clarity of Communication</li>
+                                        <li>MIRS (Missing Information Requests)</li>
+                                        <li>General Satisfaction</li>
+                                        <li>Timeliness of Responses</li>
+                                        <li>Problem-Solving Ability</li>
+                                        <li>Attention to Detail</li>
+                                        <li>Collaboration and Teamwork</li>
+                                        <li>Knowledge of Lender Policies</li>
+                                        <li>Proactiveness</li>
+                                        <li>Consistency</li>
+                                        <li>Quality of Documentation</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <!-- KPI 2 -->
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 font-semibold">KPI 2: Manager Feedback</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">20%</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi2-q1">2.00</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi2-q2">2.10</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi2-q3">2.40</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi2-q4">2.50</span></td>
+                            </tr>
+                            <tr class="bg-white">
+                                <td colspan="6" class="p-3 text-xs text-gray-500 border border-gray-200">
+                                    <ul class="list-disc list-inside ml-4 space-y-1">
+                                        <li>Timely logins and attendance patterns</li>
+                                        <li>Initiative taken (e.g. solving problems, improving workflows)</li>
+                                        <li>General observation (attitude, professionalism, collaboration)</li>
+                                        <li>Personal Wins (contributions not tracked by other KPIs)</li>
+                                        <li>Overall Visibility and Value to the team</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <!-- KPI 3 -->
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 font-semibold">KPI 3: Contribution Through Values</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">60%</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi3-q1">3.00</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi3-q2">2.80</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi3-q3">2.50</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi3-q4">2.25</span></td>
+                            </tr>
+                            <!-- KPI 4 -->
+                            <tr class="bg-[#ff0065]/50 text-white font-semibold">
+                                <td class="p-3 text-sm border border-gray-200">KPI 4: Misaligned Behavior Penalty</td>
+                                <td class="p-3 text-sm border border-gray-200">Absolute</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi4-q1">1.00</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi4-q2">0.50</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi4-q3">0.00</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="culture-kpi4-q4">0.00</span></td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="bg-gray-100">
+                            <tr>
+                                <td class="p-3 text-sm font-bold text-gray-700 border-t-2 border-gray-300">Average Culture Score</td>
+                                <td class="p-3 text-sm text-gray-600 border-t-2 border-gray-300"></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center border-t-2 border-gray-300"><span id="culture-final-q1">1.84</span></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center border-t-2 border-gray-300"><span id="culture-final-q2">2.34</span></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center border-t-2 border-gray-300"><span id="culture-final-q3">2.66</span></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center border-t-2 border-gray-300"><span id="culture-final-q4">2.35</span></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-sm font-bold text-gray-700">Average Culture Rating</td>
+                                <td class="p-3 text-sm text-gray-600"></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center"><span id="culture-rating-q1">Meets Expectations</span></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center"><span id="culture-rating-q2">High Performing</span></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center"><span id="culture-rating-q3">High Performing</span></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center"><span id="culture-rating-q4">High Performing</span></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Performance Scorecard -->
+            <div id="performance-scorecard" class="tab-content hidden p-4 border rounded-lg bg-gray-50 shadow-inner">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Performance Scorecard</h2>
+                <div class="horizontal-scroll-container">
+                    <table class="min-w-full text-left table-auto border-collapse border-b border-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[200px]">KPI & Description</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[80px]">Proposed Weight</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 text-center min-w-[100px]">Q1 (Jul-Sep)</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 text-center min-w-[100px]">Q2 (Oct-Dec)</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 text-center min-w-[100px]">Q3 (Jan-Mar)</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 text-center min-w-[100px]">Q4 (Apr-Jun)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="performance-kpi-data">
+                            <!-- KPI 1 -->
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 font-semibold">KPI 1: Volume</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">20%</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="perf-kpi1-q1">2.00</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="perf-kpi1-q2">3.00</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="perf-kpi1-q3">2.50</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="perf-kpi1-q4">3.00</span></td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" class="p-3 text-xs text-gray-500 border border-gray-200">Rolling 3-month average of files assessed, benchmarked against a 3-5 year team average.</td>
+                            </tr>
+                            <!-- KPI 2 -->
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 font-semibold">KPI 2: Assessment to AIP Conversion Rate</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">20%</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="perf-kpi2-q1">2.00</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="perf-kpi2-q2">3.00</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="perf-kpi2-q3">2.50</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="perf-kpi2-q4">3.00</span></td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" class="p-3 text-xs text-gray-500 border border-gray-200">Lag-adjusted conversion rate from assessment to AIP.</td>
+                            </tr>
+                            <!-- KPI 3 -->
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 font-semibold">KPI 3: Submission to AIP Conversion Rate</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200">60%</td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="perf-kpi3-q1">2.00</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="perf-kpi3-q2">1.00</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="perf-kpi3-q3">2.80</span></td>
+                                <td class="p-3 text-sm text-gray-600 border border-gray-200 text-center"><span id="perf-kpi3-q4">3.00</span></td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" class="p-3 text-xs text-gray-500 border border-gray-200">Lag-adjusted percentage of files submitted in the quarter that have been approved.</td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="bg-gray-100">
+                            <tr>
+                                <td class="p-3 text-sm font-bold text-gray-700 border-t-2 border-gray-300">Average Performance Score</td>
+                                <td class="p-3 text-sm text-gray-600 border-t-2 border-gray-300"></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center border-t-2 border-gray-300"><span id="perf-final-q1">2.00</span></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center border-t-2 border-gray-300"><span id="perf-final-q2">1.80</span></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center border-t-2 border-gray-300"><span id="perf-final-q3">2.74</span></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center border-t-2 border-gray-300"><span id="perf-final-q4">3.00</span></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-sm font-bold text-gray-700">Average Performance Rating</td>
+                                <td class="p-3 text-sm text-gray-600"></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center"><span id="perf-rating-q1">Meets Expectations</span></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center"><span id="perf-rating-q2">Meets Expectations</span></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center"><span id="perf-rating-q3">High Performing</span></td>
+                                <td class="p-3 text-sm font-bold text-gray-700 text-center"><span id="perf-rating-q4">High Performing</span></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Contribution through Values -->
+            <div id="contribution-values" class="tab-content hidden p-4 border rounded-lg bg-gray-50 shadow-inner overflow-y-auto">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Contribution through Values</h2>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Record Positive Contributions</h3>
+                    <form id="add-contribution-form" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="contribution-date" class="block text-sm font-medium text-gray-700">Date</label>
+                                <input type="date" id="contribution-date" name="contribution-date" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#00b0ff] focus:ring-[#00b0ff]">
+                            </div>
+                            <div>
+                                <label for="contribution-title" class="block text-sm font-medium text-gray-700">Title</label>
+                                <input type="text" id="contribution-title" name="contribution-title" placeholder="e.g., Q1 2024 Report" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#00b0ff] focus:ring-[#00b0ff]">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="contribution-description" class="block text-sm font-medium text-gray-700">Description of Action</label>
+                            <textarea id="contribution-description" name="contribution-description" rows="3" placeholder="Describe the action and its impact..." required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#00b0ff] focus:ring-[#00b0ff]"></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="recognition-type" class="block text-sm font-medium text-gray-700">Recognition Type</label>
+                                <select id="recognition-type" name="recognition-type" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#00b0ff] focus:ring-[#00b0ff]">
+                                    <option value="" disabled selected>Select type</option>
+                                    <option value="Personal Win">Personal Win</option>
+                                    <option value="Team Contribution">Team Contribution</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="contribution-impact" class="block text-sm font-medium text-gray-700">Impact (Select up to 3 for Team Contributions)</label>
+                                <select id="contribution-impact" name="contribution-impact" multiple required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#00b0ff] focus:ring-[#00b0ff] h-24">
+                                    <option value="" disabled>Select impact(s)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="contribution-points" class="block text-sm font-medium text-gray-700">Points</label>
+                                <input type="number" id="contribution-points" name="contribution-points" readonly class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-50 cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label for="contribution-links" class="block text-sm font-medium text-gray-700">Links/Evidence</label>
+                                <input type="text" id="contribution-links" name="contribution-links" placeholder="Link to evidence" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#00b0ff] focus:ring-[#00b0ff]">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#42db66] hover:bg-[#34b554] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#42db66]">Submit Contribution</button>
+                    </form>
+                </div>
+
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 mt-8">Record Misaligned Behaviour</h3>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
+                     <form id="add-misaligned-form" class="space-y-4">
+                        <input type="hidden" id="misaligned-recognition-type" value="Misaligned Behaviour">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="misaligned-date" class="block text-sm font-medium text-gray-700">Date</label>
+                                <input type="date" id="misaligned-date" name="misaligned-date" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#ff0065] focus:ring-[#ff0065]">
+                            </div>
+                            <div>
+                                <label for="misaligned-title" class="block text-sm font-medium text-gray-700">Title</label>
+                                <input type="text" id="misaligned-title" name="misaligned-title" placeholder="e.g., Conflict with Peer" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#ff0065] focus:ring-[#ff0065]">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="misaligned-description" class="block text-sm font-medium text-gray-700">Description of Action</label>
+                            <textarea id="misaligned-description" name="misaligned-description" rows="3" placeholder="Describe the action and its impact..." required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#ff0065] focus:ring-[#ff0065]"></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                             <div>
+                                <label for="misaligned-impact" class="block text-sm font-medium text-gray-700">Impact (Select all that apply)</label>
+                                <select id="misaligned-impact" name="misaligned-impact" multiple required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#ff0065] focus:ring-[#ff0065] h-24">
+                                    <option value="" disabled>Select impact(s)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="misaligned-points" class="block text-sm font-medium text-gray-700">Points</label>
+                                <input type="number" id="misaligned-points" name="misaligned-points" value="-1" readonly class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-50 cursor-not-allowed">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#ff0065] hover:bg-[#c9124a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff0065]">Submit Misaligned Behaviour</button>
+                     </form>
+                </div>
+
+
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 mt-8">Your Contributions History</h3>
+                <div class="horizontal-scroll-container bg-white rounded-lg shadow-sm border border-gray-200">
+                    <table class="min-w-full text-left table-auto">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[100px]">Date</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[150px]">Title</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[300px]">Description of Action</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[150px]">Recognition Type</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[150px]">Impact</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[80px]">Points</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700 min-w-[150px]">Links/Evidence</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contribution-table-body">
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600">2025-07-20</td>
+                                <td class="p-3 text-sm text-gray-600">CBA Broker Portal Login Issue</td>
+                                <td class="p-3 text-sm text-gray-600">I noticed an issue with the CBA broker portal login that was slowing down our team. I raised the concern and suggested a solution.</td>
+                                <td class="p-3 text-sm text-gray-600">Team Contribution</td>
+                                <td class="p-3 text-sm text-gray-600">Strong Ownership, Innovation, Adaptability</td>
+                                <td class="p-3 text-sm text-gray-600">3</td>
+                                <td class="p-3 text-sm text-gray-600"><a href="https://example.com/project-link-1" target="_blank" class="text-[#00b0ff] hover:underline">https://example.com...</a></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-sm text-gray-600">2025-06-20</td>
+                                <td class="p-3 text-sm text-gray-600">Improving Workflow</td>
+                                <td class="p-3 text-sm text-gray-600">Implemented a new process for file assessments that reduced processing time by 15%.</td>
+                                <td class="p-3 text-sm text-gray-600">Personal Win</td>
+                                <td class="p-3 text-sm text-gray-600">Innovation, Efficiency</td>
+                                <td class="p-3 text-sm text-gray-600">1</td>
+                                <td class="p-3 text-sm text-gray-600"><a href="https://example.com/project-link-2" target="_blank" class="text-[#00b0ff] hover:underline">https://example.com...</a></td>
+                            </tr>
+                             <tr>
+                                <td class="p-3 text-sm text-gray-600">2025-07-20</td>
+                                <td class="p-3 text-sm text-gray-600">Conflict with Peer</td>
+                                <td class="p-3 text-sm text-gray-600">Failed to offer help to a colleague and made a negative comment during a team meeting.</td>
+                                <td class="p-3 text-sm text-gray-600">Misaligned Behaviour</td>
+                                <td class="p-3 text-sm text-gray-600">Negativity, Fragmentation</td>
+                                <td class="p-3 text-sm text-gray-600">-1</td>
+                                <td class="p-3 text-sm text-gray-600"><a href="https://example.com/incident-report" target="_blank" class="text-[#ff0065] hover:underline">https://example.com...</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Information Gallery -->
+            <div id="info-gallery" class="tab-content hidden p-4 border rounded-lg bg-gray-50 shadow-inner overflow-y-auto">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Information Gallery</h2>
+                <div class="space-y-8">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Chapter 1: The Shift We Needed</h3>
+                        <p class="text-gray-600 mb-4">This chapter explains why our previous KPI system, which was focused purely on metrics like submissions and approvals, needed to evolve. It highlights the importance of integrating **values** as a core benchmark to measure and quantify our progress effectively.</p>
+                        <button class="mt-4 px-4 py-2 bg-[#00b0ff] text-white text-sm font-medium rounded-md hover:bg-[#0099e5] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00b0ff]" data-chapter-id="chapter1">View Details</button>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Chapter 2: The Change Unveiled</h3>
+                        <p class="text-600 mb-4">This section introduces the **Contribution Points System** and how it is calculated. It covers both **Personal Wins** and **Team Contributions**, explaining the point values for each and the rationale for the weighting.</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-600">
+                            <li>Personal Wins: Fixed at **1 point** per contribution.</li>
+                            <li>Team Contributions: Earn **1 point** per impact, capped at **3 points** max.</li>
+                            <li>The system encourages a balanced mix of both types of contributions.</li>
+                        </ul>
+                        <button class="mt-4 px-4 py-2 bg-[#00b0ff] text-white text-sm font-medium rounded-md hover:bg-[#0099e5] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00b0ff]" data-chapter-id="chapter2">View Details</button>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Chapter 3: The Power of Integration</h3>
+                        <p class="text-gray-600 mb-4">This chapter introduces the **Integrated KPI System**, which combines **Performance-Based KPIs** and **Culture-Based KPIs**. Both are scored on a **1 to 3 scale** and are summed to form a final integrated score from **1 to 6**.</p>
+                        <p class="text-gray-600 mb-2">The chapter also defines the **Brand Identity Matrix** which assigns a label (e.g., "Star Performer," "Latent Potential") to each individual based on their integrated score, providing a clear framework for recognition and development.</p>
+                        <button class="mt-4 px-4 py-2 bg-[#00b0ff] text-white text-sm font-medium rounded-md hover:bg-[#0099e5] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00b0ff]" data-chapter-id="chapter3">View Details</button>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Chapter 4: Measuring Results (Performance-Based KPIs)</h3>
+                        <p class="text-gray-600 mb-4">This chapter outlines the three main performance KPIs with their respective weightage:</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-600">
+                            <li>**KPI 1: Volume** (20%): Tracks rolling 3-month average of files assessed.</li>
+                            <li>**KPI 2: Assessment to AIP Conversion Rate** (20%): Evaluates the conversion rate from assessment to Approval in Principle (AIP).</li>
+                            <li>**KPI 3: Submission to AIP Conversion Rate** (60%): Measures the percentage of submitted files that are approved. This KPI has the highest weight because it's where the analyst has direct control.</li>
+                        </ul>
+                        <button class="mt-4 px-4 py-2 bg-[#00b0ff] text-white text-sm font-medium rounded-md hover:bg-[#0099e5] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00b0ff]" data-chapter-id="chapter4">View Details</button>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Chapter 5: Aligning with Purpose (Culture-Based KPIs)</h3>
+                        <p class="text-gray-600 mb-4">This chapter details the culture-based KPIs that measure how individuals align with company values:</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-600">
+                            <li>**KPI 1: Broker Feedback Score** (20%): Reflects feedback from brokers.</li>
+                            <li>**KPI 2: Manager Feedback Score** (20%): A qualitative evaluation by managers.</li>
+                            <li>**KPI 3: Contribution Through Values** (60%): Measures contributions to company values through daily actions.</li>
+                            <li>**KPI 4: Misaligned Behavior Penalty**: An absolute negative impact on the final culture score.</li>
+                        </ul>
+                        <button class="mt-4 px-4 py-2 bg-[#00b0ff] text-white text-sm font-medium rounded-md hover:bg-[#0099e5] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00b0ff]" data-chapter-id="chapter5">View Details</button>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Chapter 6: Elevating Performance (Q-Impact & IDP)</h3>
+                        <p class="text-gray-600 mb-4">This section introduces key development tools:</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-600">
+                            <li>**Q-Impact Board**: A snapshot of quarterly performance and culture scores.</li>
+                            <li>**Individual Development Plan (IDP) Table**: Provides personalized development goals based on scores.</li>
+                            <li>**Goal Matrix**: A blueprint that automatically populates goals and action steps for the IDP.</li>
+                            </ul>
+                        <button class="mt-4 px-4 py-2 bg-[#00b0ff] text-white text-sm font-medium rounded-md hover:bg-[#0099e5] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00b0ff]" data-chapter-id="chapter6">View Details</button>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Chapter 7: 360-Degree Performance Profile</h3>
+                        <p class="text-gray-600 mb-4">This chapter explains how the 360-Degree Performance Profile provides a holistic view of an individual's growth journey. It combines historical performance and culture ratings to offer a comprehensive assessment of their long-term progress.</p>
+                        <button class="mt-4 px-4 py-2 bg-[#00b0ff] text-white text-sm font-medium rounded-md hover:bg-[#0099e5] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00b0ff]" data-chapter-id="chapter7">View Details</button>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Annexures</h3>
+                        <p class="text-gray-600 mb-4">The annexures provide detailed examples of key concepts:</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-600">
+                            <li>**Annexure 1**: Outlines examples of **Personal Wins** and **Team Contributions**.</li>
+                            <li>**Annexure 2**: Defines **Aligned** and **Misaligned Behaviours** associated with the core values: **Passion, Care, and Oneness**.</li>
+                        </ul>
+                        <button class="mt-4 px-4 py-2 bg-[#00b0ff] text-white text-sm font-medium rounded-md hover:bg-[#0099e5] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00b0ff]" data-chapter-id="annexures">View Details</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Evidence Gallery -->
+            <div id="evidence-gallery" class="tab-content hidden p-4 border rounded-lg bg-gray-50 shadow-inner overflow-y-auto">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Evidence Gallery</h2>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Add Your Evidence</h3>
+                    <form id="add-evidence-form" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="contribution-type" class="block text-sm font-medium text-gray-700">Contribution Type</label>
+                                <select id="contribution-type" name="contribution-type" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#00b0ff] focus:ring-[#00b0ff]">
+                                    <option value="" disabled selected>Select a type</option>
+                                    <option value="Personal Win">Personal Win</option>
+                                    <option value="Team Contribution">Team Contribution</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="evidence-desc" class="block text-sm font-medium text-gray-700">Description</label>
+                                <textarea id="evidence-desc" name="evidence-desc" rows="3" placeholder="Describe your contribution and its impact." required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#00b0ff] focus:ring-[#00b0ff]"></textarea>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="evidence-url" class="block text-sm font-medium text-gray-700">Evidence URL</label>
+                            <input type="url" id="evidence-url" name="evidence-url" placeholder="e.g., https://example.com/image.png" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#00b0ff] focus:ring-[#00b0ff]">
+                            <p class="mt-1 text-sm text-gray-500">Provide a link to an image, document, or other evidence. This dashboard does not support file uploads.</p>
+                        </div>
+                        <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#42db66] hover:bg-[#34b554] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#42db66]">Submit Evidence</button>
+                    </form>
+                </div>
+                <div id="evidence-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Evidence cards will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for full chapter content -->
+    <div id="chapter-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(0,0,0,0.5); display: none;">
+        <div class="relative bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+            <button id="close-modal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-3xl font-bold">&times;</button>
+            <h2 id="modal-title" class="text-2xl font-bold mb-4 text-gray-800"></h2>
+            <div id="modal-content" class="text-gray-600 space-y-4"></div>
+        </div>
+    </div>
+
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, collection, addDoc, getDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // IMPORTANT: Use the global variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        setLogLevel('debug');
+        
+        // Initialize Firebase
+        let app, db, auth, userId;
+        if (firebaseConfig) {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                const authStatusEl = document.getElementById('auth-status');
+                if (authStatusEl) authStatusEl.textContent = 'Authenticating...';
+                
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        const userIdEl = document.getElementById('user-id');
+                        if (userIdEl) userIdEl.textContent = userId;
+                        const authStatusEl = document.getElementById('auth-status');
+                        if (authStatusEl) authStatusEl.textContent = 'Authentication successful!';
+                        console.log('User authenticated with UID:', userId);
+                        setupFirestoreListeners();
+                    } else {
+                        console.log('No user signed in. Attempting to authenticate...');
+                        const authStatusEl = document.getElementById('auth-status');
+                        if (authStatusEl) authStatusEl.textContent = 'No user signed in. Retrying...';
+                        authenticateAndInit();
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization error:", error);
+                const authStatusEl = document.getElementById('auth-status');
+                if (authStatusEl) authStatusEl.textContent = 'Firebase initialization failed. Check your config.';
+                const loadingEl = document.getElementById('loading');
+                if (loadingEl) loadingEl.classList.add('hidden');
+            }
+        } else {
+            console.warn("Running in local environment. Firebase functionality will be limited or unavailable.");
+            const authStatusEl = document.getElementById('auth-status');
+            if (authStatusEl) authStatusEl.textContent = 'Running locally. Firebase config not found.';
+            const loadingEl = document.getElementById('loading');
+            if (loadingEl) loadingEl.classList.add('hidden');
+        }
+
+        // --- AUTHENTICATION & INITIALIZATION ---
+        async function authenticateAndInit() {
+            if (!auth) {
+                console.error("Auth not initialized. Cannot authenticate.");
+                return;
+            }
+            
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Firebase auth error:", error);
+                const authStatusEl = document.getElementById('auth-status');
+                if (authStatusEl) authStatusEl.textContent = 'Authentication failed.';
+            } finally {
+                // Ensure loading indicator is hidden after auth attempt
+                const loadingEl = document.getElementById('loading');
+                if (loadingEl) loadingEl.classList.add('hidden');
+            }
+        }
+        
+        // Brand Identity Matrix logic from the user's spreadsheet formula
+        const brandIdentityMatrix = {
+            '1': {
+                '1': { text: 'At Risk', color: 'bg-[#ff0065]' },
+                '2': { text: 'Lone Contributor', color: 'bg-[#00b0ff]' },
+                '3': { text: 'Cultural Tension', color: 'bg-[#ff0065]' }
+            },
+            '2': {
+                '1': { text: 'Latent Potential', color: 'bg-[#00b0ff]' },
+                '2': { text: 'Solid Supporter', color: 'bg-[#42db66]' },
+                '3': { text: 'Emerging Leader', color: 'bg-[#42db66]' }
+            },
+            '3': {
+                '1': { text: 'Misaligned Contributor', color: 'bg-[#ff0065]' },
+                '2': { text: 'Consistent Ally', color: 'bg-[#42db66]' },
+                '3': { text: 'Star Performer', color: 'bg-[#42db66]' }
+            }
+        };
+
+        const positiveImpacts = [
+            'Mentoring Juniors',
+            'Self-Improvement',
+            'Handling Complex Scenarios Independently',
+            'Taking Initiative in Process Improvement',
+            'Client Relationships',
+            'Cross-Team Collaboration',
+            'Providing Feedback to Junior Team Members',
+            'Collaborating with Brokers',
+            'Knowledge Sharing',
+            'Supporting Other Teams During Busy Periods',
+            'Training and Development of Junior Analysts',
+            'Celebrating Team Successes',
+            'Fostering Team Morale',
+            'Facilitating Cross-Team Meetings',
+            'Building Strong Broker Relationships',
+            'Offering Unsolicited Assistance',
+            'Demonstrating Accountability',
+            'Encouraging Work-Life Balance',
+            'Promoting Fairness and Equal Opportunity',
+            'Taking the Lead in Team Projects',
+            'Innovation',
+            'Efficiency',
+            'Ownership',
+            'Adaptability',
+            'Teamwork'
+        ];
+
+        const misalignedImpacts = [
+            'Fragmentation',
+            'Indifference',
+            'Disengagement',
+            'Negativity',
+            'Avoidance',
+            'Self-centered',
+            'Hoarding',
+            'Neglect',
+            'Marginalization',
+            'Abuse',
+            'Isolation',
+            'Exclusivity',
+            'Discrimination',
+            'Miscommunication',
+            'Toxicity',
+            'Ignorance',
+            'Being fearful of change and failure',
+            'Not being open to feedback and challenges',
+            'Having a pessimistic outlook',
+            'Feeling threatened by the success of others',
+            'Attributing success to yourself and failures to others',
+            'Avoiding responsibility and accountability',
+            'Blaming others for failures',
+            'Isolating from the team',
+            'Rejecting feedback and constructive criticism',
+            'Avoiding challenges or stepping outside the comfort zone',
+            'Being self-centered and unapproachable',
+            'Harassing or bullying others',
+            'Focusing solely on personal gains without consideration for others',
+            'Setting unrealistic goals that lead to burnout',
+            'Spreading negativity among team members',
+            'Failing to address team conflicts',
+            'Not respecting others\' time and boundaries',
+            'Indifference to colleagues\' struggles',
+            'Ignoring colleagues\' personal needs',
+            'Failing to acknowledge the efforts of others',
+            'Being biased or unfair',
+            'Poor communication within teams',
+            'Not respecting the diversity of colleagues',
+            'Misusing power and authority',
+            'Working in silos and excluding others',
+            'Withholding information from colleagues',
+            'Failing to offer help when needed',
+            'Excluding others from decision-making',
+            'Shifting blame to others',
+            'Acting in isolation without consideration of others'
+        ];
+
+        const mockUsersData = {
+            'user1': {
+                'name': 'Jane Doe',
+                'doj': '28/01/2022',
+                'tenureInYears': 3,
+                'tenure': '3 yrs, 7 mos',
+                'designation': 'Senior Credit Analyst',
+                'cultureScore': 2.35,
+                'performanceScore': 3.00,
+                'contributionPoints': 21,
+                'qImpactLivingValues': [
+                    { averageScore: 2.35, kpiRating: 'Meets Expectations', activeStatus: 'Yes', quarter: 'FY2024-25' },
+                    { averageScore: 0.29, kpiRating: 'Below Expectations', activeStatus: 'No', quarter: 'FY2025-26' }
+                ],
+                'qImpactPerformanceJourney': [
+                    { averageScore: 3.00, kpiRating: 'High Performing', activeStatus: 'Yes', quarter: 'FY2024-25' },
+                    { averageScore: 1.55, kpiRating: 'Meets Expectations', activeStatus: 'Yes', quarter: 'FY2025-26' }
+                ],
+                'cultureKpiData': {
+                    'Q1': { kpi1: 2.70, kpi2: 2.00, kpi3: 3.00, kpi4: 1.00 },
+                    'Q2': { kpi1: 2.50, kpi2: 2.10, kpi3: 2.80, kpi4: 0.50 },
+                    'Q3': { kpi1: 2.90, kpi2: 2.40, kpi3: 2.50, kpi4: 0.00 },
+                    'Q4': { kpi1: 2.50, kpi2: 2.50, kpi3: 2.25, kpi4: 0.00 }
+                },
+                'performanceKpiData': {
+                    'Q1': { kpi1: 2.00, kpi2: 2.00, kpi3: 2.00 },
+                    'Q2': { kpi1: 3.00, kpi2: 3.00, kpi3: 1.00 },
+                    'Q3': { kpi1: 2.50, kpi2: 2.50, kpi3: 2.80 },
+                    'Q4': { kpi1: 3.00, kpi2: 3.00, kpi3: 3.00 }
+                },
+                'contributionHistory': [
+                    { date: '2025-07-20', title: 'CBA Broker Portal Login Issue', description: 'I noticed an issue with the CBA broker portal login that was slowing down our team. I raised the concern and suggested a solution.', type: 'Team Contribution', impact: 'Strong Ownership, Innovation, Adaptability', points: 3, links: 'https://example.com/project-link-1' },
+                    { date: '2025-06-20', title: 'Improving Workflow', description: 'Implemented a new process for file assessments that reduced processing time by 15%.', type: 'Personal Win', impact: 'Innovation, Efficiency', points: 1, links: 'https://example.com/project-link-2' },
+                    { date: '2025-07-20', title: 'Conflict with Peer', description: 'Failed to offer help to a colleague and made a negative comment during a team meeting.', type: 'Misaligned Behaviour', impact: 'Negativity, Fragmentation', points: -1, links: 'https://example.com/incident-report' }
+                ]
+            },
+            'user2': {
+                'name': 'John Smith',
+                'doj': '15/05/2023',
+                'tenureInYears': 2,
+                'tenure': '2 yrs, 4 mos',
+                'designation': 'Credit Analyst',
+                'cultureScore': 1.80,
+                'performanceScore': 2.74,
+                'contributionPoints': 10,
+                'qImpactLivingValues': [
+                    { averageScore: 1.50, kpiRating: 'Below Expectations', activeStatus: 'No', quarter: 'FY2024-25' },
+                    { averageScore: 1.80, kpiRating: 'Meets Expectations', activeStatus: 'Yes', quarter: 'FY2025-26' }
+                ],
+                'qImpactPerformanceJourney': [
+                    { averageScore: 2.00, kpiRating: 'Meets Expectations', activeStatus: 'Yes', quarter: 'FY2024-25' },
+                    { averageScore: 2.74, kpiRating: 'High Performing', activeStatus: 'Yes', quarter: 'FY2025-26' }
+                ],
+                'cultureKpiData': {
+                    'Q1': { kpi1: 2.00, kpi2: 1.50, kpi3: 2.00, kpi4: 0.00 },
+                    'Q2': { kpi1: 1.80, kpi2: 1.90, kpi3: 2.10, kpi4: 0.50 },
+                    'Q3': { kpi1: 2.00, kpi2: 2.20, kpi3: 2.30, kpi4: 0.00 },
+                    'Q4': { kpi1: 2.10, kpi2: 2.30, kpi3: 2.50, kpi4: 0.00 }
+                },
+                'performanceKpiData': {
+                    'Q1': { kpi1: 2.20, kpi2: 1.80, kpi3: 2.00 },
+                    'Q2': { kpi1: 2.50, kpi2: 2.00, kpi3: 2.10 },
+                    'Q3': { kpi1: 2.60, kpi2: 2.50, kpi3: 2.80 },
+                    'Q4': { kpi1: 2.80, kpi2: 2.70, kpi3: 2.90 }
+                },
+                'contributionHistory': [
+                    { date: '2025-07-10', title: 'Streamlined Reporting', description: 'Developed a new template that simplified weekly reporting for the team, saving several hours of manual work.', type: 'Team Contribution', impact: 'Efficiency, Innovation', points: 2, links: 'https://example.com/project-report' },
+                    { date: '2025-06-01', title: 'Completed Training', description: 'Successfully completed the advanced lender policy training course.', type: 'Personal Win', impact: 'Self-Improvement', points: 1, links: 'https://example.com/training-cert' }
+                ]
+            },
+            'user3': {
+                'name': 'Alex Johnson',
+                'doj': '10/11/2024',
+                'tenureInYears': 0,
+                'tenure': '1 yrs, 10 mos',
+                'designation': 'Junior Credit Analyst',
+                'cultureScore': 1.50,
+                'performanceScore': 2.10,
+                'contributionPoints': 5,
+                'qImpactLivingValues': [
+                    { averageScore: 1.50, kpiRating: 'Below Expectations', activeStatus: 'No', quarter: 'FY2025-26' }
+                ],
+                'qImpactPerformanceJourney': [
+                    { averageScore: 2.10, kpiRating: 'Meets Expectations', activeStatus: 'Yes', quarter: 'FY2025-26' }
+                ],
+                'cultureKpiData': {
+                    'Q1': { kpi1: 1.50, kpi2: 1.50, kpi3: 1.50, kpi4: 0.00 },
+                    'Q2': { kpi1: 1.40, kpi2: 1.30, kpi3: 1.70, kpi4: 0.00 },
+                    'Q3': { kpi1: 1.60, kpi2: 1.70, kpi3: 1.80, kpi4: 0.00 },
+                    'Q4': { kpi1: 1.50, kpi2: 1.50, kpi3: 1.50, kpi4: 0.00 }
+                },
+                'performanceKpiData': {
+                    'Q1': { kpi1: 1.80, kpi2: 2.00, kpi3: 2.00 },
+                    'Q2': { kpi1: 2.00, kpi2: 2.10, kpi3: 2.20 },
+                    'Q3': { kpi1: 2.10, kpi2: 2.20, kpi3: 2.30 },
+                    'Q4': { kpi1: 2.00, kpi2: 2.20, kpi3: 2.10 }
+                },
+                'contributionHistory': [
+                    { date: '2025-08-01', title: 'Completed basic policy training', description: 'Completed mandatory training on new lender policies.', type: 'Personal Win', impact: 'Self-Improvement', points: 1, links: 'https://example.com/training-cert-alex' }
+                ]
+            }
+        };
+
+        function getBrandIdentity(cultureScore, perfScore) {
+            const floorCulture = Math.floor(cultureScore);
+            const floorPerf = Math.floor(perfScore);
+            
+            const brandIdentity = brandIdentityMatrix[floorCulture]?.[floorPerf];
+
+            if (brandIdentity) {
+                return brandIdentity;
+            }
+            return { text: 'N/A', color: 'bg-gray-400' };
+        }
+
+        let currentTab = 'profile';
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active-tab'));
+            
+            const targetTab = document.getElementById(tabName);
+            const targetBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+            if (targetTab && targetBtn) {
+                targetTab.classList.remove('hidden');
+                targetBtn.classList.add('active-tab');
+                currentTab = tabName;
+            } else {
+                console.error(`Tab or button for "${tabName}" not found.`);
+            }
+        }
+
+        function formatScore(score) {
+            if (score === null || score === undefined || isNaN(score)) {
+                return '--';
+            }
+            return (Math.round(score * 100) / 100).toFixed(2);
+        }
+        
+        function getRating(score) {
+            if (score <= 1) return 'Below Expectations';
+            if (score <= 2) return 'Meets Expectations';
+            if (score > 2) return 'High Performing';
+            return '--';
+        }
+        
+        const chapterContent = {
+            'chapter1': `<h3 class="text-xl font-semibold text-gray-800 mb-2">Chapter 1: The Shift We Needed: Why Change Was Essential for Clarity and Impact</h3><p>Since we're integrating values as a core benchmark across the organization, it's essential that we have the tools and systems in place to measure and quantify these values effectively. This will not only help us track our progress but also ensure that our actions align with the principles we aim to uphold, making our values an actionable part of our culture and operations. Given the significant effort we're putting into quantifying and rewarding positive values and contributions, it's equally important that we address behaviors that are misaligned with our core principles. Because if we don't call out what's misaligned, we're effectively endorsing it. To ensure consistency and fairness, we're introducing a system that not only recognizes and rewards actions that embody our values: Oneness, Passion, and Care, but also holds individuals accountable when behavior falls short of these standards. This approach will help us maintain a culture where everyone thrives in alignment with our shared values.</p>`,
+            'chapter2': `<h3 class="text-xl font-semibold text-gray-800 mb-2">Chapter 2: The Change Unveiled: From Vision to Reality</h3><h4 class="text-lg font-medium text-gray-700 mt-4">Contribution Points System | Contribution through Values</h4><h5 class="text-base font-medium text-gray-600 mt-2">How Points Are Calculated</h5><ul class="list-disc list-inside space-y-2 text-gray-600 ml-4"><li><strong>Personal Wins:</strong> Fixed at 1 point per contribution (as long as at least one Impact is selected). In rare cases, if a Personal Win is exceptionally impactful (e.g., 3-5 one-touch approvals in a short span), the score may be manually adjusted to more than 1 point at the manager's discretion. These adjustments are transparent and noticeable, so they cannot be manipulated or overused.</li><li><strong>Team Contributions:</strong> Earn 1 point per Impact selected, capped at 3 points max. Analysts can select multiple Impacts per entry, but points will not exceed the category limit.</li></ul><h5 class="text-base font-medium text-gray-600 mt-4">Scoring Toward 15 Points (Meets Expectations)</h5><ul class="list-disc list-inside space-y-2 text-gray-600 ml-4"><li>If contributions are mostly Team Contributions (3 points max each) → 5 strong contributions per quarter (~1-2 per month) is enough.</li><li>If contributions are mostly Personal Wins (1 point each) → 15 contributions per quarter (~1 per week) would be required.</li><li>In practice, most analysts will have a mix of both, so the actual number of contributions needed will fall between 5 and 15 per quarter.</li></ul><h4 class="text-lg font-medium text-gray-700 mt-4">Why This is Fair</h4><ul class="list-disc list-inside space-y-2 text-gray-600 ml-4"><li>Team Contributions usually create wider value (helping peers, solving shared problems, sharing knowledge), so they're weighted more heavily.</li><li>Personal Wins reflect individual growth and achievement, which are equally important, but are capped to avoid over-rewarding small wins.</li><li>Exception handling (bonus weighting for rare, high-impact Personal Wins) ensures truly outstanding performance is recognized without skewing the system.</li><li>This structure encourages analysts to show both personal growth and team impact, rather than relying on just one type.</li></ul><h4 class="text-lg font-medium text-gray-700 mt-4">Expectations from Analysts</h4><ul class="list-disc list-inside space-y-2 text-gray-600 ml-4"><li>A healthy mix of Personal Wins and Team Contributions is encouraged.</li><li>Analysts should aim for: Consistent Personal Wins reflecting learning, initiative, improvements, and Meaningful Team Contributions creating shared value and impact.</li><li>Managers may apply discretionary bonus points for exceptional, non-repetitive Personal Wins (e.g., multiple one-touch approvals).</li></ul><p class="text-gray-600 mt-4">The goal is not just to reach 15 points, but to demonstrate balanced growth and contribution across both dimensions.</p><h4 class="text-lg font-medium text-gray-700 mt-4">Recognition Tiers (Points-Based - FY2025-26 Onward)</h4><p class="text-gray-600 mt-2">The following tiers will be used to calculate the score for KPI 3 (Contribution Through Values) based on the total points earned quarterly:</p><div class="bg-gray-100 p-4 rounded-lg mt-4"><p class="text-gray-700 font-bold mb-2">For CAs who have been in the role for more than 1 year:</p><table class="w-full text-left table-auto border-collapse mb-4"><thead><tr class="bg-gray-200"><th class="p-2 border border-gray-300">Points Earned (Quarterly)</th><th class="p-2 border border-gray-300">Performance Rating</th><th class="p-2 border border-gray-300">Score (KPI 3) Calculation</th></tr></thead><tbody><tr><td class="p-2 border border-gray-300">0-14</td><td class="p-2 border border-gray-300">Below Expectations</td><td class="p-2 border border-gray-300">Points Earned / 14 (0.0 - 1.0)</td></tr><tr><td class="p-2 border border-gray-300">15-20</td><td class="p-2 border border-gray-300">Meets Expectations</td><td class="p-2 border border-gray-300">1 + (Points Earned - 14) / 6 (1.17 - 2.0)</td></tr><tr><td class="p-2 border border-gray-300">21-25 and above</td><td class="p-2 border border-gray-300">High Performing</td><td class="p-2 border border-gray-300">2 + (Points Earned - 20) / 5 (2.2 - 3.0)</td></tr></tbody></table><p class="text-gray-700 font-bold mb-2">For CAs who have been in the role for less than 1 year:</p><table class="w-full text-left table-auto border-collapse"><thead><tr class="bg-gray-200"><th class="p-2 border border-gray-300">Points Earned (Quarterly)</th><th class="p-2 border border-gray-300">Performance Rating</th><th class="p-2 border border-gray-300">Score (KPI 3) Calculation</th></tr></thead><tbody><tr><td class="p-2 border border-gray-300">0-5</td><td class="p-2 border border-gray-300">Below Expectations</td><td class="p-2 border border-gray-300">Points Earned / 5 (0.0 - 1.0)</td></tr><tr><td class="p-2 border border-gray-300">6-15</td><td class="p-2 border border-gray-300">Meets Expectations</td><td class="p-2 border border-gray-300">1 + (Points Earned - 5) / 10 (1.1 - 2.0)</td></tr><tr><td class="p-2 border border-gray-300">16-20 and above</td><td class="p-2 border border-gray-300">High Performing</td><td class="p-2 border border-gray-300">2 + (Points Earned - 15) / 5 (2.2 - 3.0)</td></tr></tbody></table></div><h4 class="text-lg font-medium text-gray-700 mt-4">Misaligned Behaviours</h4><p class="text-gray-600 mt-2">While we take great pride in rewarding positive values, we have zero tolerance for negative behaviours. There is no room for excuses, as a team of highly professional individuals. It's essential that we all uphold the highest standards to ensure the success and integrity of our team and organization as a whole. Going forward, for every instance of misaligned behaviour, an individual will be awarded a negative score of 1. This score will then be adjusted based on the weighted average of the other 3 KPI metrics from the culture scorecard, with 100% weight being considered. For example, if an individual achieves a weighted average score of 2.8 from KPI 1, 2, and 3 in the Culture Scorecard, and has 2 instances of misaligned behaviour (KPI 4 in the Culture Scorecard), their final culture score will be calculated as 0.8, after subtracting the 2 negative points from the original weighted average (of KPI 1,2 and 3).</p>`,
+            'chapter3': `<h3 class="text-xl font-semibold text-gray-800 mb-2">Chapter 3: The Power of Integration: Beyond Numbers, Where Performance Meets Cultural Impact</h3><h4 class="text-lg font-medium text-gray-700 mt-4">Introduction: The Shift from Numbers to Values</h4><p>Our previous KPI system was primarily focused on performance metrics like assessments submissions, approvals, and meeting deadlines. While these metrics remain essential, they don't fully capture the complete picture of what individuals bring to the organization, particularly in terms of cultural contributions and interpersonal dynamics. To address this, we've integrated culture-based KPIs alongside performance-based ones, allowing us to assess both task roles (performance-driven outcomes) and social roles (cultural contributions). This shift ensures that we measure both what employees achieve and how they help shape the organization's culture and values.</p><h4 class="text-lg font-medium text-gray-700 mt-4">The Two Pillars of Our Integrated KPI System</h4><p>Our new KPI system consists of two core components:</p><ul class="list-disc list-inside space-y-2 text-gray-600 ml-4"><li><strong>1. Performance-Based KPIs (Task Roles):</strong> These evaluate traditional performance measures, such as individual output, meeting goals, and team contributions—essentially, how individuals perform their core tasks.</li><li><strong>2. Culture-Based KPIs (Social Roles):</strong> These assess how employees contribute to the social fabric of the organization by living and reinforcing company values like collaboration, innovation, and integrity—how they contribute to the team's overall cohesion and alignment with shared values.</li></ul><p class="text-gray-600 mt-4">Both components are scored on a **1 to 3 scale**:</p><ul class="list-disc list-inside space-y-2 text-gray-600 ml-4"><li>$<=1$: Minimal contribution (Below Expectations)</li><li>$<=2$: Solid contribution (Meets Expectations)</li><li>$<=3$: Exceptional contribution (High performing)</li></ul><p class="text-gray-600 mt-4">These scores combine to form an integrated score ranging from 1 to 6, offering a comprehensive view of an individual's contributions.</p><h4 class="text-lg font-medium text-gray-700 mt-4">How the Integrated Score Works</h4><p>Each employee will be assigned:</p><ul class="list-disc list-inside space-y-2 text-gray-600 ml-4"><li><strong>Performance Score (1-3):</strong> Based on how well they meet performance objectives, drive results, and contribute to team goals.</li><li><strong>Culture Score (1-3):</strong> Based on how well they embody the company's values, collaborate with others, and positively contribute to the organizational culture.</li></ul><p class="text-gray-600 mt-4">The final integrated score will be a combination of both scores, ranging from 1 to 6, offering a holistic view of each individual's impact in both performance and cultural alignment.</p><h4 class="text-lg font-medium text-gray-700 mt-4">The Benefits of Integrating Performance and Culture</h4><p>This integrated approach offers several key benefits:</p><ul class="list-disc list-inside space-y-2 text-gray-600 ml-4"><li><strong>Holistic Evaluation:</strong> It recognizes both task roles (performance) and social roles (culture), giving a full picture of an individual's value to the organization.</li><li><strong>Balanced Growth:</strong> Encourages individuals to develop in both their task-related competencies and their ability to contribute to the company culture.</li><li><strong>Clearer Career Pathways:</strong> The integrated scores provide employees with clarity on their progress, highlighting areas for improvement and growth.</li><li><strong>Stronger Organizational Culture:</strong> Reinforces the behaviors and values essential for the organization's long-term success, fostering a positive and collaborative environment.</li></ul><h4 class="text-lg font-medium text-gray-700 mt-4">Conclusion: A Balanced Future</h4><h4 class="text-lg font-medium text-gray-700 mt-4">Your Brand Identity</h4><p>Your Brand Identity is a unified reflection of your impact at HLE/Alaya, not just in what you deliver, but in how you live the company's values and how committed you've been over time. Based on the integrated score, each individual will be assigned a brand identity that reflects both their task role (performance) and social role (cultural contribution). This identity helps to categorize employees by their overall impact on the organization, offering a framework for recognition and professional development.</p><div class="bg-gray-100 p-4 rounded-lg mt-4"><p class="text-gray-700 font-bold mb-2">Brand Identity Matrix</p><table class="w-full text-left table-auto border-collapse"><thead><tr class="bg-gray-200"><th class="p-2 border border-gray-300"></th><th class="p-2 border border-gray-300">Performance: Below (1)</th><th class="p-2 border border-gray-300">Performance: Meets (2)</th><th class="p-2 border border-gray-300">Performance: Exceeds (3)</th></tr></thead><tbody><tr><td class="p-2 border border-gray-300 font-bold">Culture: Exceeds (3)</td><td class="p-2 border border-gray-300">Misaligned Contributor [Score: 4]<br><small>High cultural alignment but low performance. [Stays at the current level]</small></td><td class="p-2 border border-gray-300">Consistent Ally [Score: 5]<br><small>Strong performer and cultural role model. [Eligible to move up to the next level]</small></td><td class="p-2 border border-gray-300">Star Performer [Score: 6]<br><small>Top performer who exemplifies the culture. [Eligible to move up to the next level]</small></td></tr><tr><td class="p-2 border border-gray-300 font-bold">Culture: Meets (2)</td><td class="p-2 border border-gray-300">Latent Potential [Score: 3]<br><small>Meets cultural norms but needs performance support. [Stays at the current level]</small></td><td class="p-2 border border-gray-300">Solid Supporter [Score: 4]<br><small>Reliable performer who fits the culture.</small></td><td class="p-2 border border-gray-300">Emerging Leader [Score: 5]<br><small>High performer with strong potential for growth. [Eligible to move up to the next level]</small></td></tr><tr><td class="p-2 border border-gray-300 font-bold">Culture: Below (1)</td><td class="p-2 border border-gray-300">At Risk [Score: 2]<br><small>Low performance and poor cultural alignment. [Stays at the current level]</small></td><td class="p-2 border border-gray-300">Lone Contributor [Score: 3]<br><small>Meets performance goals but doesn't align with culture. [Stays at the current level]</small></td><td class="p-2 border border-gray-300">Cultural Tension [Score: 4]<br><small>High performer who creates cultural friction. [Stays at the current level]</small></td></tr></tbody></table></div>`,
+            'chapter4': `<h3 class="text-xl font-semibold text-gray-800 mb-2">Chapter 4: Measuring Results: The Power of Performance-Based KPIs</h3><p>Performance-based KPIs focus on quantifiable outcomes that directly measure an individual's or team's contribution to organizational goals. These metrics help drive results and ensure that objectives are being met efficiently and effectively. In this chapter, we will focus on three key performance indicators that are essential for tracking success in our roles. These KPIs are designed to keep performance aligned with our broader goals, with a weightage of 20/20/60. The performance-based KPIs are as follows:</p><h4 class="text-lg font-medium text-gray-700 mt-4">KPI 1: Volume (20%)</h4><p>The Volume KPI tracks the rolling 3-month average of files assessed, benchmarked against a 3-5 year team/broker average. This metric measures the overall output in terms of the number of files handled by an individual or team. It ensures that workloads are consistent and that the team is meeting the expected productivity standards. Objective: To maintain or exceed historical productivity levels.</p><h4 class="text-lg font-medium text-gray-700 mt-4">KPI 2: Assessment to AIP Conversion Rate (Lag-Adjusted) (20%)</h4><p>This metric evaluates the conversion rate from assessment to AIP (Approval in Principle), specifically focusing on the rolling 3-month average of files converted. The goal is to assess how effectively assessments are moving forward into actionable steps. Objective: To increase the efficiency of assessment-to-action transitions. Lag Adjustment: KPI 2 incorporates a lag adjustment to account for delayed approvals. The calculation includes submissions and approvals from the previous quarter (e.g., Q1 submissions approved in Q2), ensuring a more accurate reflection of performance across quarters and capturing any delays in the approval process.</p><h4 class="text-lg font-medium text-gray-700 mt-4">KPI 3: Submission to AIP Conversion Rate (Lag-Adjusted) (60%)</h4><p>The Submission to AIP Conversion Rate measures the percentage of files submitted in the quarter that are ultimately approved, irrespective of the approval date. This lag-adjusted KPI tracks the overall success of submissions, ensuring that the quality and relevance of submissions align with organizational standards. Objective: To achieve a high conversion rate between submissions and AIP, indicating quality and accuracy in the process.</p><h4 class="text-lg font-medium text-gray-700 mt-4">Weightage of Performance-Based KPIs: Rationale for Distribution</h4><p>The reason KPI 3 carries a higher weight (60%) is that this is where the analyst has direct control and should be 100% accountable for results. KPI 3 reflects the final approval process and shows how well the individual can ensure that submissions meet the required standards. KPI 1 (Volume) and KPI 2 (Assessment to AIP Conversion Rate) are less directly under the control of the individual, so they are weighted at 20% each.</p>`,
+            'chapter5': `<h3 class="text-xl font-semibold text-gray-800 mb-2">Chapter 5: Aligning with Purpose: Culture-Based KPIs and Their Impact</h3><p>This chapter details the culture-based KPIs that measure how individuals align with company values:</p><h4 class="text-lg font-medium text-gray-700 mt-4">The Cultural Shift in KPIs</h4><p>In Chapter 2, we introduced a critical change: the quantification of values-based contributions. These cultural contributions are now a core part of the integrated KPI system, alongside performance-based metrics. Chapter 5 builds upon this shift by focusing on how culture-based KPIs are designed to assess values alignment and the impact of individual contributions on the organization's broader cultural goals. Culture is not just about what we achieve but how we achieve it. These KPIs measure how well individuals align with our company's values and contribute to a positive, collaborative work environment. They encourage the behaviors that are essential for success beyond just numbers.</p><h4 class="text-lg font-medium text-gray-700 mt-4">KPI 1: Broker Feedback Score (20%)</h4><p>The Broker Feedback Score reflects the perception of an individual's work from the brokers we collaborate with. It is based on essential cultural behaviors and soft skills, such as communication, collaboration, and problem-solving—all of which directly contribute to building strong relationships and maintaining trust in a team environment. Scoring Range: 1-3, with decimal values (e.g., 1.8, 2.9, 2.75). Score Recorded By: Manager (Based on Broker's feedback-quarterly) Key Evaluation Areas: Accuracy of Assessment, Clarity of Communication, MIRS (Missing Information Requests), General Satisfaction, Timeliness of Responses, Problem-Solving Ability, Attention to Detail, Collaboration and Teamwork, Knowledge of Lender Policies, Proactiveness, Consistency, Quality of Documentation. These elements are directly tied to the core values we established in Chapter 2, which emphasize collaboration, communication, and proactive problem-solving. This KPI encourages individuals to reflect on how their work impacts external stakeholders, not just their own performance.</p><h4 class="text-lg font-medium text-gray-700 mt-4">KPI 2: Manager Feedback Score (20%)</h4><p>Manager feedback is a qualitative evaluation that considers not only performance but also key aspects of organizational culture, including attitude, professionalism, initiative, and contribution to team dynamics. This holistic evaluation ensures that employees are recognized for their role in fostering a positive work environment and cultural growth. Scoring Range: 1-3, with decimal values (e.g., 1.8, 2.9, 2.75). Score Recorded By: Manager. Key Evaluation Areas: 1. Manager's Discretion - Key Aspects: Evaluation considers whether the employee consistently maintains professional standards such as timely logins, initiative in solving problems, and their overall value and visibility within the team. Professionalism, collaboration, and proactive contributions are key aspects that influence their score. 2. Contribution to Broker Team: Managers assess how actively the employee contributes to the success of the team. This includes helping with colleagues' files during periods of absence and providing general team support to ensure a smooth workflow. Strong teamwork and proactive collaboration are valued. 3. Continuous Professional Education/Development: Credit analysts are expected to engage in ongoing professional development. To align with global industry standards, credit analysts should complete at least 3-5 CPE activities per quarter, such as seminars, courses, webinars, or self-study programs. This is not merely a formality; it's a vital aspect of ensuring that credit analysts remain up-to-date with industry trends, regulations, and best practices, thereby contributing to the continued integrity and professionalism of the Australian mortgage industry.</p><h4 class="text-lg font-medium text-gray-700 mt-4">KPI 3: Contribution Through Values (60%)</h4><p>KPI 3 is where Chapter 2's values quantification comes into full play. This KPI measures an individual's contribution to company values through daily actions, collaboration, and team alignment. It goes beyond just the results an individual achieves-it evaluates how those results are achieved and the extent to which they contribute to the organization's long-term cultural goals. Scoring Range: 1-3, with decimal values. Score Recorded By: Manager. Key Areas of Evaluation: Personal Wins (Reflecting individual contributions to the team's success), Team Contribution (Helping and supporting team members, aligning with shared goals), Demonstrating Company Values (Behaving in ways that reflect the core values discussed in Chapter 2, such as collaboration, integrity, and accountability). This KPI is the most impactful in measuring cultural alignment, as it directly tracks whether individuals are living out the company's values day-to-day. It encourages a deeper sense of ownership and responsibility for how we work, not just what we accomplish.</p><h4 class="text-lg font-medium text-gray-700 mt-4">KPI 4: Misaligned Behavior Penalty</h4><p>The Misaligned Behavior Penalty ensures that individuals are held accountable for behaviors that go against the company's cultural values. This includes actions that undermine team dynamics, disrupt collaboration, or violate the ethical standards we uphold. The penalty is calculated based on specific instances of misaligned behavior, and it will reduce the overall culture score accordingly.</p><h4 class="text-lg font-medium text-gray-700 mt-4">How the Final Culture-Based KPI Score is Calculated</h4><p>The culture-based score combines the following: Average Culture Score = $(KPI 1 \times 20\%) + (KPI 2 \times 20\%) + (KPI 3 \times 60\%)$. Misaligned Behavior Penalty (KPI 4) is subtracted from the total. The final score will range from 1 to 3, reflecting the overall alignment with cultural expectations.</p>`,
+            'chapter6': `<h3 class="text-xl font-semibold text-gray-800 mb-2">Chapter 6: Elevating Performance (Q-Impact & IDP)</h3><p>To ensure that both performance and cultural alignment are actively tracked and improved upon, we've introduced a comprehensive feedback and development tool within the KPI system. This tool is designed not only to assess how employees are performing each quarter but also to give them actionable feedback and development goals tailored to performance and culture.</p><p>The **Q-Impact Board**, **Individual Development Plan (IDP) table**, and **Goal Matrix** are key components of this system, working together to create a holistic development framework. By using these tools, we aim to provide clarity, transparency, and structured guidance to CAs, helping them continually grow and improve in both performance and cultural contribution.</p>`,
+            'chapter7': `<h3 class="text-xl font-semibold text-gray-800 mb-2">Chapter 7: 360-Degree Performance Profile</h3><p>The 360-Degree Performance Profile offers a holistic view of an analyst's growth journey, combining their performance and culture ratings from previous years. This profile reflects the evolution of an individual's contributions and provides a more comprehensive assessment of how they align with company goals. It is an extension of the insights introduced in Chapter 3, where we discussed the Integrated Score and how it ties an individual's performance with their cultural contributions. The 360-Degree Performance Profile pulls from this integrated approach to provide a more detailed year-by-year performance and culture history.</p><h4 class="text-lg font-medium text-gray-700 mt-4">What's Included in the 360-Degree Performance Profile?</h4><p>1. <strong>Basic Details:</strong> This section includes essential personal information, such as: Name, Role, Tenure with the Company, and Date of Joining.</p><p>2. <strong>Historical Performance and Culture Ratings:</strong> A year-by-year breakdown of the analyst's performance scores and culture ratings.</p><p>3. <strong>Brand Identity:</strong> This section captures the Brand Identity of the individual based on their previous year's integrated score.</p><p>4. <strong>Integrated Score:</strong> The Integrated Score from Chapter 3 serves as a summary of the individual's performance and culture over the last year.</p>`,
+            'annexures': `<h3 class="text-xl font-semibold text-gray-800 mb-2">Annexure 1: Personal Wins and Team Contributions</h3><p>This annexure provides detailed examples of Personal Wins and Team Contributions.</p><ul class="list-disc list-inside space-y-2 text-gray-600 ml-4"><li><strong>Personal Wins:</strong> Mentoring Juniors, Self-Improvement, Handling Complex Scenarios Independently, Taking Initiative in Process Improvement, Client Relationships.</li><li><strong>Team Contributions:</strong> Cross-Team Collaboration, Providing Feedback to Junior Team Members, Collaborating with Brokers, Knowledge Sharing, Supporting Other Teams During Busy Periods, Training and Development of Junior Analysts, Celebrating Team Successes, Fostering Team Morale, Facilitating Cross-Team Meetings, Building Strong Broker Relationships, Offering Unsolicited Assistance, Demonstrating Accountability, Encouraging Work-Life Balance, Promoting Fairness and Equal Opportunity, Taking the Lead in Team Projects.</li></ul><h3 class="text-xl font-semibold text-gray-800 mt-4 mb-2">Annexure 2: Aligned and Misaligned Behaviours</h3><p>This annexure defines Aligned and Misaligned Behaviours associated with the core values: Passion, Care, and Oneness.</p><ul class="list-disc list-inside space-y-2 text-gray-600 ml-4"><li><strong>Aligned Behaviours (Passion):</strong> Proactively seeks feedback, takes ownership, embraces change, demonstrates growth mindset, and takes initiative.</li><li><strong>Aligned Behaviours (Care):</strong> Displays empathy, handles colleagues and clients with kindness, supports others, contributes to the community, and creates a safe environment.</li><li><strong>Aligned Behaviours (Oneness):</strong> Respects others' opinions, celebrates successes, shares ownership, promotes fairness, and fosters collaboration.</li><li><strong>Misaligned Behaviours:</strong> Includes Fragmentation, Indifference, and Disengagement. These are behaviors that show a lack of accountability, empathy, and collaboration.</li></ul>`
+        };
+
+        const modal = document.getElementById('chapter-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const closeModalBtn = document.getElementById('close-modal');
+
+        function setupUIListeners() {
+            document.querySelectorAll('.tab-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const tab = button.dataset.tab;
+                    switchTab(tab);
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                const targetBtn = event.target.closest('[data-chapter-id]');
+                if (targetBtn) {
+                    console.log('Button clicked:', targetBtn.dataset.chapterId);
+                    const chapterId = targetBtn.dataset.chapterId;
+                    const contentHtml = chapterContent[chapterId];
+                    if (contentHtml) {
+                        const titleElement = targetBtn.closest('.bg-white').querySelector('h3');
+                        if (titleElement) {
+                             modalTitle.textContent = titleElement.textContent;
+                        }
+                        modalContent.innerHTML = contentHtml;
+                        modal.style.display = 'flex';
+                    }
+                }
+            });
+    
+            closeModalBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+                modalContent.innerHTML = '';
+            });
+    
+            window.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    modalContent.innerHTML = '';
+                }
+            });
+        }
+
+        // --- FIRESTORE LISTENERS & RENDERING ---
+        function setupFirestoreListeners() {
+            if (!userId || !db) {
+                console.error("User not authenticated or Firestore not initialized. Cannot initialize listeners.");
+                return;
+            }
+
+            const userRef = (collectionName) => {
+                const path = `/artifacts/${appId}/users/${userId}/${collectionName}`;
+                console.log('Firestore path:', path);
+                return collection(db, path);
+            };
+        }
+        
+        function updateDashboard(userData) {
+            if (!userData) return;
+            const integratedScore = userData.cultureScore + userData.performanceScore;
+
+            // Update profile details
+            document.getElementById('profile-name').textContent = userData.name;
+            document.getElementById('profile-doj').textContent = userData.doj;
+            document.getElementById('profile-tenure').textContent = userData.tenure;
+            document.getElementById('profile-designation').textContent = userData.designation;
+            document.getElementById('integrated-score').textContent = integratedScore.toFixed(2);
+            
+            const brandIdentity = getBrandIdentity(userData.cultureScore, userData.performanceScore);
+            const brandIdentityTextEl = document.getElementById('brand-identity-text');
+            const parentDiv = brandIdentityTextEl.parentElement;
+            
+            if (brandIdentity) {
+                brandIdentityTextEl.textContent = brandIdentity.text;
+                parentDiv.className = `p-4 rounded-lg text-white flex flex-col items-center justify-center text-center ${brandIdentity.color}`;
+            }
+
+            // Update Q-Impact tables
+            updateQImpactTable(document.getElementById('q-impact-living-values-data'), userData.qImpactLivingValues);
+            updateQImpactTable(document.getElementById('q-impact-performance-journey-data'), userData.qImpactPerformanceJourney);
+            
+            // Update Scorecard tables
+            updateScorecardTable('culture', userData.cultureKpiData, userData.contributionPoints, userData.tenureInYears);
+            updateScorecardTable('performance', userData.performanceKpiData);
+            
+            // Update Contribution History table
+            updateContributionHistory(userData.contributionHistory);
+        }
+        
+        function updateQImpactTable(tableBody, data) {
+            tableBody.innerHTML = '';
+            if (data && data.length > 0) {
+                data.forEach(item => {
+                    const row = `
+                        <tr>
+                            <td class="p-3 text-sm text-gray-600 border border-gray-200">${item.quarter}</td>
+                            <td class="p-3 text-sm text-gray-600 border border-gray-200">${formatScore(item.averageScore)}</td>
+                            <td class="p-3 text-sm text-gray-600 border border-gray-200">${item.kpiRating}</td>
+                            <td class="p-3 text-sm text-gray-600 border border-gray-200">${item.activeStatus}</td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            } else {
+                 tableBody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-sm text-gray-500 border border-gray-200">No data available.</td></tr>`;
+            }
+        }
+
+        function calculateKpi3Score(points, tenureInYears) {
+            let score;
+            let rating;
+            if (tenureInYears > 1) {
+                if (points >= 21) {
+                    score = 2 + Math.min(3, (points - 20) / 5);
+                    rating = 'High Performing';
+                } else if (points >= 15) {
+                    score = 1 + (points - 14) / 6;
+                    rating = 'Meets Expectations';
+                } else {
+                    score = points / 14;
+                    rating = 'Below Expectations';
+                }
+            } else { // Tenure less than or equal to 1 year
+                if (points >= 16) {
+                    score = 2 + Math.min(3, (points - 15) / 5);
+                    rating = 'High Performing';
+                } else if (points >= 6) {
+                    score = 1 + (points - 5) / 10;
+                    rating = 'Meets Expectations';
+                } else {
+                    score = points / 5;
+                    rating = 'Below Expectations';
+                }
+            }
+            return { score, rating };
+        }
+
+        function updateScorecardTable(type, data, contributionPoints, tenureInYears) {
+            const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            quarters.forEach(q => {
+                const qData = data[q] || {};
+                const kpi1Score = qData.kpi1;
+                const kpi2Score = qData.kpi2;
+                let kpi3Score = qData.kpi3;
+                let kpi3Rating = getRating(kpi3Score);
+                const kpi4Score = qData.kpi4 || 0;
+                
+                if (type === 'culture') {
+                    const kpi3Result = calculateKpi3Score(contributionPoints, tenureInYears);
+                    kpi3Score = kpi3Result.score;
+                    kpi3Rating = kpi3Result.rating;
+                }
+
+                const avgScore = ((kpi1Score * 0.2) + (kpi2Score * 0.2) + (kpi3Score * 0.6)) - kpi4Score;
+                const rating = getRating(avgScore);
+                
+                document.getElementById(`${type}-kpi1-${q.toLowerCase()}`).textContent = formatScore(kpi1Score);
+                document.getElementById(`${type}-kpi2-${q.toLowerCase()}`).textContent = formatScore(kpi2Score);
+                document.getElementById(`${type}-kpi3-${q.toLowerCase()}`).textContent = formatScore(kpi3Score);
+                if (type === 'culture') {
+                    document.getElementById(`${type}-kpi4-${q.toLowerCase()}`).textContent = formatScore(-kpi4Score);
+                }
+                document.getElementById(`${type}-final-${q.toLowerCase()}`).textContent = formatScore(avgScore);
+                document.getElementById(`${type}-rating-${q.toLowerCase()}`).textContent = rating;
+            });
+        }
+        
+        function updateContributionHistory(data) {
+            const tableBody = document.getElementById('contribution-table-body');
+            tableBody.innerHTML = '';
+            if (data && data.length > 0) {
+                data.forEach(item => {
+                    const isMisaligned = item.type === 'Misaligned Behaviour';
+                    const linkColor = isMisaligned ? 'text-[#ff0065]' : 'text-[#00b0ff]';
+                    const row = `
+                        <tr>
+                            <td class="p-3 text-sm text-gray-600 border border-gray-200">${item.date}</td>
+                            <td class="p-3 text-sm text-gray-600 border border-gray-200">${item.title}</td>
+                            <td class="p-3 text-sm text-gray-600 border border-gray-200">${item.description}</td>
+                            <td class="p-3 text-sm text-gray-600 border border-gray-200">${item.type}</td>
+                            <td class="p-3 text-sm text-gray-600 border border-gray-200">${item.impact}</td>
+                            <td class="p-3 text-sm text-gray-600 border border-gray-200">${item.points}</td>
+                            <td class="p-3 text-sm text-gray-600 border border-gray-200"><a href="${item.links}" target="_blank" class="${linkColor} hover:underline">${item.links.split('/').pop().substring(0, 20)}...</a></td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="7" class="p-3 text-center text-sm text-gray-500 border border-gray-200">No contribution history found.</td></tr>`;
+            }
+        }
+        
+        function setupMockData() {
+            // Initial load with User 1's data
+            const selectedUserId = 'user1';
+            const userData = mockUsersData[selectedUserId];
+            updateDashboard(userData);
+
+            const userIdSelect = document.getElementById('user-id-select');
+            userIdSelect.addEventListener('change', (e) => {
+                const newUserId = e.target.value;
+                const newUserData = mockUsersData[newUserId];
+                updateDashboard(newUserData);
+            });
+        }
+
+        // --- Event listeners for the "Contribution through Values" tab ---
+        function setupContributionListeners() {
+            const recognitionTypeSelect = document.getElementById('recognition-type');
+            const contributionImpactSelect = document.getElementById('contribution-impact');
+            const contributionPointsInput = document.getElementById('contribution-points');
+            
+            const misalignedImpactSelect = document.getElementById('misaligned-impact');
+            const misalignedPointsInput = document.getElementById('misaligned-points');
+
+            const teamContributionImpacts = ['Cross-Team Collaboration', 'Providing Feedback to Junior Team Members', 'Collaborating with Brokers', 'Knowledge Sharing', 'Supporting Other Teams During Busy Periods', 'Training and Development of Junior Analysts', 'Celebrating Team Successes', 'Fostering Team Morale', 'Facilitating Cross-Team Meetings', 'Building Strong Broker Relationships', 'Offering Unsolicited Assistance', 'Demonstrating Accountability', 'Encouraging Work-Life Balance', 'Promoting Fairness and Equal Opportunity', 'Taking the Lead in Team Projects'];
+            const personalWinImpacts = ['Mentoring Juniors', 'Self-Improvement', 'Handling Complex Scenarios Independently', 'Taking Initiative in Process Improvement', 'Client Relationships', 'Innovation', 'Efficiency'];
+            const misalignedImpactsList = ['Fragmentation', 'Indifference', 'Disengagement', 'Negativity', 'Avoidance', 'Self-centered', 'Hoarding', 'Neglect', 'Marginalization', 'Abuse', 'Isolation', 'Exclusivity', 'Discrimination', 'Miscommunication', 'Toxicity', 'Ignorance'];
+            
+            function populateImpacts(selectElement, impacts) {
+                selectElement.innerHTML = ''; // Clear previous options
+                impacts.forEach(impact => {
+                    const option = document.createElement('option');
+                    option.value = impact;
+                    option.textContent = impact;
+                    selectElement.appendChild(option);
+                });
+            }
+            
+            function calculateContributionPoints() {
+                const selectedType = recognitionTypeSelect.value;
+                if (selectedType === 'Personal Win') {
+                    contributionPointsInput.value = 1;
+                } else if (selectedType === 'Team Contribution') {
+                    const selectedCount = contributionImpactSelect.selectedOptions.length;
+                    contributionPointsInput.value = Math.min(3, selectedCount);
+                } else {
+                    contributionPointsInput.value = 0;
+                }
+            }
+            
+            // Set up initial state for misaligned impacts
+            populateImpacts(misalignedImpactSelect, misalignedImpactsList);
+
+            recognitionTypeSelect.addEventListener('change', () => {
+                const selectedType = recognitionTypeSelect.value;
+                if (selectedType === 'Personal Win') {
+                    populateImpacts(contributionImpactSelect, personalWinImpacts);
+                } else if (selectedType === 'Team Contribution') {
+                    populateImpacts(contributionImpactSelect, teamContributionImpacts);
+                }
+                // Calculate points immediately
+                calculateContributionPoints();
+            });
+
+            contributionImpactSelect.addEventListener('change', calculateContributionPoints);
+            misalignedImpactSelect.addEventListener('change', () => {
+                misalignedPointsInput.value = -1;
+            });
+        }
+
+        // --- Main Initialization Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setupUIListeners();
+            setupContributionListeners();
+            if (firebaseConfig) {
+                 authenticateAndInit();
+            } else {
+                 setupMockData();
+            }
+        });
+
+    </script>
+</body>
+</html>
